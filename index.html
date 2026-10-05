@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>UTM Link Generator</title>
+
+    <script
+        src="/sdk/dist/sdk.js"
+        >
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .label-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 7px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        .required {
+            color: #d00;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .optional {
+            color: #888;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .info {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            border: 1px solid #999;
+            border-radius: 50%;
+            color: #666;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: help;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            padding: 12px;
+            background: #222;
+            color: white;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: normal;
+            line-height: 1.5;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+        }
+
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #222 transparent transparent transparent;
+        }
+
+        .info:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #555;
+        }
+
+        .example {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #111;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 25px;
+            display: none;
+        }
+
+        .result label {
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .result-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .result-box input {
+            flex: 1;
+        }
+
+        .copy-button {
+            width: auto;
+            padding: 12px 18px;
+        }
+
+        .error {
+            color: #d00;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #16803c;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .divider {
+            margin: 30px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+
+        .whatsapp-section {
+            margin-top: 25px;
+        }
+
+        .whatsapp-section h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .whatsapp-section p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .whatsapp-button {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            border-radius: 6px;
+            background: #25D366;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .whatsapp-button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>UTM Link Generator</h1>
+
+    <p class="description">
+        Buat link dengan parameter UTM untuk mengetahui dari mana pengunjung
+        website berasal dan campaign mana yang menghasilkan traffic.
+    </p>
+
+    <div class="form-group">
+        <div class="label-row">
+            <label for="url">Website URL</label>
+
+            <span class="required">* Wajib</span>
+
+            <span class="info">
+                i
+                <span class="tooltip">
+                    Masukkan alamat halaman website yang ingin Anda promosikan.
+                    Link UTM akan mengarah ke halaman ini.
+                </span>
+            </span>
+        </div>
+
+        <input
+            id="url"
+            type="url"
+            placeholder="https://example.com/product"
+            required
+        >
+
+        <div class="example">
+            Contoh: https://example.com/product
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="label-row">
+            <label for="utm_source">UTM Source</label>
+
+            <span class="required">* Wajib</span>
+
+            <span class="info">
+                i
+                <span class="tooltip">
+                    Menunjukkan dari mana pengunjung berasal.
+                    Biasanya menggunakan nama platform atau sumber traffic.
+                    Contoh: Instagram, Facebook, Google, atau Newsletter.
+                </span>
+            </span>
+        </div>
+
+        <input
+            id="utm_source"
+            type="text"
+            placeholder="instagram"
+            required
+        >
+
+        <div class="example">
+            Contoh: instagram, facebook, google
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="label-row">
+            <label for="utm_medium">UTM Medium</label>
+
+            <span class="required">* Wajib</span>
+
+            <span class="info">
+                i
+                <span class="tooltip">
+                    Menunjukkan jenis atau channel traffic yang digunakan.
+                    Contoh: paid untuk iklan berbayar, organic untuk traffic
+                    organik, social untuk media sosial, dan email untuk
+                    email marketing.
+                </span>
+            </span>
+        </div>
+
+        <input
+            id="utm_medium"
+            type="text"
+            placeholder="paid"
+            required
+        >
+
+        <div class="example">
+            Contoh: paid, organic, social, email
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="label-row">
+            <label for="utm_campaign">UTM Campaign</label>
+
+            <span class="required">* Wajib</span>
+
+            <span class="info">
+                i
+                <span class="tooltip">
+                    Menunjukkan nama campaign yang sedang dijalankan.
+                    Gunakan nama yang mudah dikenali agar hasil campaign
+                    dapat dibedakan dalam laporan.
+                </span>
+            </span>
+        </div>
+
+        <input
+            id="utm_campaign"
+            type="text"
+            placeholder="ramadan-sale"
+            required
+        >
+
+        <div class="example">
+            Contoh: ramadan-sale, promo-september, launching-product
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="label-row">
+            <label for="utm_term">UTM Term</label>
+
+            <span class="optional">Opsional</span>
+
+            <span class="info">
+                i
+                <span class="tooltip">
+                    Biasanya digunakan untuk mencatat kata kunci yang
+                    digunakan dalam iklan berbayar, terutama pada search ads.
+                    Field ini tidak wajib diisi.
+                </span>
+            </span>
+        </div>
+
+        <input
+            id="utm_term"
+            type="text"
+            placeholder="sepatu-running"
+        >
+
+        <div class="example">
+            Contoh: sepatu-running, laptop-gaming
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="label-row">
+            <label for="utm_content">UTM Content</label>
+
+            <span class="optional">Opsional</span>
+
+            <span class="info">
+                i
+                <span class="tooltip">
+                    Digunakan untuk membedakan beberapa iklan atau konten
+                    dalam campaign yang sama. Berguna untuk membandingkan
+                    performa beberapa versi iklan.
+                </span>
+            </span>
+        </div>
+
+        <input
+            id="utm_content"
+            type="text"
+            placeholder="banner-a"
+        >
+
+        <div class="example">
+            Contoh: banner-a, banner-b, video-1
+        </div>
+    </div>
+
+    <button onclick="generateUTM()">
+        Generate UTM Link
+    </button>
+
+    <div id="error" class="error"></div>
+
+    <div id="result" class="result">
+
+        <label>Generated URL</label>
+
+        <div class="result-box">
+            <input
+                id="generatedUrl"
+                type="text"
+                readonly
+            >
+
+            <button
+                class="copy-button"
+                onclick="copyUrl()">
+                Copy
+            </button>
+        </div>
+
+        <div id="success" class="success"></div>
+
+    </div>
+
+    <hr class="divider">
+
+    <div class="whatsapp-section">
+
+        <h2>Testing WhatsApp Tracking</h2>
+
+        <p>
+            Gunakan tombol ini untuk menguji apakah SDK berhasil mendeteksi
+            aktivitas ketika pengunjung mengklik link WhatsApp.
+        </p>
+
+        <a
+            class="whatsapp-button"
+            href="https://wa.me/628123456789"
+            target="_blank"
+            rel="noopener noreferrer">
+            Test WhatsApp Tracking
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+    function generateUTM() {
+        const urlInput = document.getElementById("url").value.trim();
+        const source = document.getElementById("utm_source").value.trim();
+        const medium = document.getElementById("utm_medium").value.trim();
+        const campaign = document.getElementById("utm_campaign").value.trim();
+        const term = document.getElementById("utm_term").value.trim();
+        const content = document.getElementById("utm_content").value.trim();
+
+        const error = document.getElementById("error");
+        const result = document.getElementById("result");
+        const generatedUrl = document.getElementById("generatedUrl");
+
+        error.textContent = "";
+
+        if (!urlInput) {
+            error.textContent = "Website URL wajib diisi.";
+            result.style.display = "none";
+            return;
+        }
+
+        if (!source) {
+            error.textContent = "UTM Source wajib diisi.";
+            result.style.display = "none";
+            return;
+        }
+
+        if (!medium) {
+            error.textContent = "UTM Medium wajib diisi.";
+            result.style.display = "none";
+            return;
+        }
+
+        if (!campaign) {
+            error.textContent = "UTM Campaign wajib diisi.";
+            result.style.display = "none";
+            return;
+        }
+
+        try {
+            const url = new URL(urlInput);
+
+            url.searchParams.set("utm_source", source);
+            url.searchParams.set("utm_medium", medium);
+            url.searchParams.set("utm_campaign", campaign);
+
+            if (term) {
+                url.searchParams.set("utm_term", term);
+            }
+
+            if (content) {
+                url.searchParams.set("utm_content", content);
+            }
+
+            generatedUrl.value = url.toString();
+            result.style.display = "block";
+
+        } catch {
+            error.textContent = "Website URL tidak valid.";
+            result.style.display = "none";
+        }
+    }
+
+    async function copyUrl() {
+        const generatedUrl = document.getElementById("generatedUrl");
+        const success = document.getElementById("success");
+
+        try {
+            await navigator.clipboard.writeText(generatedUrl.value);
+
+            success.textContent = "Link berhasil disalin.";
+
+            setTimeout(() => {
+                success.textContent = "";
+            }, 1500);
+
+        } catch {
+            success.textContent = "Gagal menyalin link.";
+        }
+    }
+</script>
+
+</body>
+</html>
