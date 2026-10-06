@@ -51,6 +51,7 @@
         const phone = "6281190011223";
         const strId = String(id);
 
+        // 1. Konversi ID ke Biner
         const binaryString = strId
             .split("")
             .map(char => {
@@ -61,25 +62,43 @@
             })
             .join("");
 
-        let invisibleString = "%E2%80%8D";
+        // 2. Buat Blok Payload (Gembok Pembuka)
+        let invisibleBlock = "%E2%80%8D";
 
         for (const bit of binaryString) {
             if (bit === "0") {
-                invisibleString += "%E2%80%8B";
+                invisibleBlock += "%E2%80%8B";
             } else {
-                invisibleString += "%E2%80%8C";
+                invisibleBlock += "%E2%80%8C";
             }
         }
 
-        invisibleString += "%E2%80%8E".repeat(10);
+        // 3. Gembok Penutup (Crumple Zone)
+        invisibleBlock += "%E2%80%8E";
+
+        // 4. Memisahkan teks untuk menyisipkan payload di TENGAH
+        let teksDepan = "";
+        let teksBelakang = "";
+        const firstSpaceIndex = defaultText.indexOf(" ");
+
+        if (firstSpaceIndex !== -1) {
+            // Jika ada spasi, potong setelah spasi pertama (contoh: "Halo ")
+            teksDepan = defaultText.substring(0, firstSpaceIndex + 1);
+            teksBelakang = defaultText.substring(firstSpaceIndex + 1);
+        } else {
+            // Jika teks cuma 1 kata tanpa spasi, potong setelah huruf pertama
+            teksDepan = defaultText.substring(0, 1);
+            teksBelakang = defaultText.substring(1);
+        }
 
         // console.log("[Tracker] ID:", id);
         // console.log("[Tracker] Binary:", binaryString);
-        // console.log("[Tracker] Invisible payload:", invisibleString);
+        // console.log("[Tracker] Invisible payload:", invisibleBlock);
 
+        // 5. Rangkai URL: Teks Depan + Payload + Teks Belakang
         return (
             `https://api.whatsapp.com/send/?phone=${phone}` +
-            `&text=${invisibleString}${encodeURIComponent(defaultText)}` +
+            `&text=${encodeURIComponent(teksDepan)}${invisibleBlock}${encodeURIComponent(teksBelakang)}` +
             `&type=phone_number&app_absent=0`
         );
     }
