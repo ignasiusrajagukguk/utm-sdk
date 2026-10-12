@@ -12,18 +12,40 @@
 
     function getHashId() {
         const hash = window.location.hash;
+        const params = new URLSearchParams(window.location.search);
 
-        if (!hash || hash.length <= 1) {
-            return null;
+        // Ambil ID dari hash atau query parameter
+        let id = null;
+
+        if (hash && /^#\d+$/.test(hash)) {
+            id = hash.substring(1);
+        } else {
+            const paramId = params.get("sourceID");
+
+            if (paramId && /^\d+$/.test(paramId)) {
+                id = paramId;
+            }
         }
 
-        const id = hash.substring(1);
+        // Jika ID ditemukan di URL, simpan ke localStorage
+        if (id) {
+            localStorage.setItem("sopra_sourceID", id);
 
-        if (!/^\d+$/.test(id)) {
-            return null;
+            console.log("[Tracker] Source ID saved:", id);
+
+            return Number(id);
         }
 
-        return Number(id);
+        // Jika tidak ada di URL, ambil dari localStorage
+        const storedId = localStorage.getItem("sopra_sourceID");
+
+        if (storedId && /^\d+$/.test(storedId)) {
+            console.log("[Tracker] Source ID restored:", storedId);
+
+            return Number(storedId);
+        }
+
+        return null;
     }
 
     function isWhatsAppUrl(url) {
@@ -192,15 +214,11 @@
             if (!isWhatsAppUrl(href)) {
                 return;
             }
-
-            if (
-                link.dataset.trackerWhatsApp ===
-                "true"
-            ) {
+            if (link.dataset.trackerSourceId === String(id)) {
                 return;
             }
 
-            link.dataset.trackerWhatsApp = "true";
+            link.dataset.trackerSourceId = String(id);
 
             const newUrl =
                 generateWhatsAppLink(id);
@@ -253,7 +271,9 @@
 
         observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["href"]
         });
     }
 
@@ -279,6 +299,13 @@
         console.log(
             "[Tracker] SDK initialized"
         );
+        window.addEventListener("hashchange", function () {
+            const id = getHashId();
+
+            if (id) {
+                replaceWhatsAppLinks();
+            }
+        });
     }
 
     if (
